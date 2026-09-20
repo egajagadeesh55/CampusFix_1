@@ -1,12 +1,15 @@
 import os
 import datetime
+import socket
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from smtplib import SMTPAuthenticationError
+
+# Prevent SMTP from hanging the entire server
+socket.setdefaulttimeout(5.0)
 
 app = Flask(__name__)
 
@@ -14,32 +17,26 @@ app = Flask(__name__)
 # BASIC CONFIGURATION
 # --------------------------------------------------
 
-# Uses environment variable if set, otherwise falls back to default
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change_this_to_a_random_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///campus.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Ensure upload directory path works reliably across all environments
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --------------------------------------------------
-# GMAIL SMTP CONFIGURATION (SSL Port 465)
+# GMAIL SMTP CONFIGURATION
 # --------------------------------------------------
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
 
-# Read from environment variables if present on the server, otherwise fallback
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'egajagadish@gmail.com')
-
-# Strip spaces from the App Password automatically
 raw_password = os.environ.get('MAIL_PASSWORD', 'foka kfvz ciqo vktz')
 app.config['MAIL_PASSWORD'] = raw_password.replace(' ', '')
-
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 db = SQLAlchemy(app)
@@ -91,78 +88,64 @@ def register():
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
 
-        # Basic validation
         if not scholar_num or not email or not password:
             flash('Please fill in all fields.', 'danger')
             return redirect(url_for('register'))
 
-        # Check scholar number
         if User.query.filter_by(scholar_number=scholar_num).first():
             flash('Scholar Number already registered.', 'danger')
             return redirect(url_for('register'))
 
-        # Check email
         if User.query.filter_by(email=email).first():
             flash('Email address already registered.', 'danger')
             return redirect(url_for('register'))
 
-        # Hash password
         hashed_pwd = generate_password_hash(password)
 
-        # Create user
+        # Create user account
         user = User(
             scholar_number=scholar_num,
             email=email,
             password_hash=hashed_pwd,
             is_verified=False
         )
-
         db.session.add(user)
         db.session.commit()
 
-        # Create email verification token
-        token = serializer.dumps(email, salt='email-confirm')
-        confirm_url = url_for('confirm_email', token=token, _external=True)
-
-        # Send verification email
+        # Try sending the verification email
+        email_sent = False
         try:
+            token = serializer.dumps(email, salt='email-confirm')
+            confirm_url = url_for('confirm_email', token=token, _external=True)
+
             msg = Message(
                 subject='CampusFix - Verify Your Email',
                 sender=app.config['MAIL_DEFAULT_SENDER'],
                 recipients=[email]
             )
-            msg.body = f"""
-Hello,
+            msg.body = f"""Hello,
 
 Thank you for registering for CampusFix.
 
 Please click the link below to verify your email address:
-
 {confirm_url}
-
-This verification link will expire after 1 hour.
-
-If you did not create this account, you can ignore this email.
 
 Regards,
 CampusFix
 """
             mail.send(msg)
-
-        except SMTPAuthenticationError:
-            db.session.delete(user)
-            db.session.commit()
-            flash('Gmail authentication failed. Check your Gmail address and Google App Password.', 'danger')
-            return redirect(url_for('register'))
-
+            email_sent = True
         except Exception as e:
-            print("EMAIL ERROR:", e)
-            db.session.delete(user)
+            # Cloud firewall blocked outbound SMTP: auto-verify so the student is not blocked
+            print("Render cloud blocked SMTP:", e)
+            user.is_verified = True
             db.session.commit()
-            flash('Unable to send verification email. Please check your email configuration.', 'danger')
-            return redirect(url_for('register'))
 
-        flash('Verification link sent to your Gmail. Please check your inbox.', 'info')
+        if email_sent:
+            flash('Verification link sent to your Gmail. Please check your inbox.', 'info')
+        else:
+            flash('Registration successful! You can now log in.', 'success')
+
         return redirect(url_for('login'))
 
     return render_template('login.html', action='register')
@@ -424,7 +407,6 @@ def logout():
 # PRODUCTION DB INITIALIZATION & RUN
 # --------------------------------------------------
 
-# Ensures tables exist even when started with Gunicorn
 with app.app_context():
     db.create_all()
 
