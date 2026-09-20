@@ -1,0 +1,912 @@
+/* =========================================================
+   CAMPUSFIX - STUDENT PORTAL
+   Glass + Soft Blue UI
+   ========================================================= */
+
+/* ---------- BASIC RESET ---------- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+
+    background:
+        radial-gradient(circle at 10% 35%, rgba(90, 160, 255, 0.16), transparent 18%),
+        radial-gradient(circle at 92% 75%, rgba(90, 160, 255, 0.13), transparent 22%),
+        linear-gradient(135deg, #ffffff 0%, #f4f8ff 50%, #edf5ff 100%);
+
+    color: #18356b;
+    padding-bottom: 60px;
+}
+
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+
+.navbar {
+    width: 100%;
+    height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 7%;
+
+    background: rgba(255, 255, 255, 0.82);
+    border-bottom: 1px solid rgba(80, 150, 255, 0.16);
+
+    box-shadow:
+        0 4px 20px rgba(55, 120, 220, 0.08);
+
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+
+/* CampusFix title */
+
+.brand {
+    font-size: 22px;
+    font-weight: 700;
+    color: #173875;
+
+    letter-spacing: 0.2px;
+}
+
+
+/* Student portal text */
+
+.navbar > div:last-child {
+    color: #6b83a8;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* Logout */
+
+.navbar a {
+    color: #2678df !important;
+    text-decoration: none;
+    font-weight: 600;
+
+    margin-left: 6px;
+
+    transition: 0.25s ease;
+}
+
+.navbar a:hover {
+    color: #1259b8 !important;
+}
+
+
+/* =========================================================
+   MAIN GLASS CARDS
+   ========================================================= */
+
+.card {
+    width: min(900px, 92%);
+    margin: 38px auto 0;
+
+    padding: 38px;
+
+    background: rgba(255, 255, 255, 0.58);
+
+    border: 1px solid rgba(130, 190, 255, 0.35);
+
+    border-radius: 28px;
+
+    box-shadow:
+        0 10px 35px rgba(60, 130, 220, 0.12),
+        0 0 30px rgba(70, 160, 255, 0.08);
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Soft glass highlight */
+
+.card::before {
+    content: "";
+    position: absolute;
+
+    top: 0;
+    left: 8%;
+    right: 8%;
+
+    height: 1px;
+
+    background: rgba(255, 255, 255, 0.95);
+}
+
+
+/* =========================================================
+   CARD HEADINGS
+   ========================================================= */
+
+.card h3 {
+    text-align: center;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    color: #102d68;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 22px 24px;
+}
+
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+    width: 100%;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #38577f;
+}
+
+
+/* =========================================================
+   INPUTS / SELECTS / TEXTAREA
+   ========================================================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    border: 1px solid rgba(130, 180, 235, 0.28);
+
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.60);
+
+    color: #31527e;
+
+    border-radius: 18px;
+
+    font-family: Arial, Helvetica, sans-serif;
+
+    box-shadow:
+        inset 0 2px 8px rgba(90, 140, 200, 0.05),
+        0 3px 12px rgba(70, 140, 220, 0.04);
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.25s ease;
+}
+
+
+/* Text inputs */
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    height: 52px;
+
+    padding: 0 18px;
+
+    font-size: 14px;
+}
+
+
+/* Select */
+
+select {
+    height: 52px;
+
+    padding: 0 18px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    appearance: auto;
+}
+
+
+/* Textarea */
+
+textarea {
+    min-height: 125px;
+
+    padding: 16px 18px;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    resize: vertical;
+}
+
+
+/* Placeholder */
+
+input::placeholder,
+textarea::placeholder {
+    color: #9aaeca;
+}
+
+
+/* Focus */
+
+input:focus,
+select:focus,
+textarea:focus {
+    background: rgba(255, 255, 255, 0.88);
+
+    border-color: rgba(55, 140, 235, 0.55);
+
+    box-shadow:
+        0 0 0 4px rgba(70, 155, 245, 0.08),
+        0 5px 18px rgba(60, 140, 230, 0.10);
+}
+
+
+/* Hover */
+
+input:hover,
+select:hover,
+textarea:hover {
+    background: rgba(255, 255, 255, 0.76);
+
+    border-color: rgba(90, 160, 235, 0.38);
+}
+
+
+/* =========================================================
+   FILE UPLOAD
+   ========================================================= */
+
+input[type="file"] {
+    height: 55px;
+
+    padding: 7px 12px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+
+/* File button */
+
+input[type="file"]::file-selector-button {
+    border: none;
+
+    padding: 10px 17px;
+
+    margin-right: 12px;
+
+    border-radius: 14px;
+
+    background: rgba(60, 135, 235, 0.12);
+
+    color: #2769b5;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+
+input[type="file"]::file-selector-button:hover {
+    background: rgba(60, 135, 235, 0.20);
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+   ========================================================= */
+
+button[type="submit"] {
+    width: 100%;
+
+    height: 54px;
+
+    margin-top: 24px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    background: linear-gradient(
+        135deg,
+        #4b91f7,
+        #2879e8
+    );
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.2px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 22px rgba(45, 125, 235, 0.25),
+        0 0 18px rgba(60, 145, 245, 0.12);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 11px 28px rgba(45, 125, 235, 0.30),
+        0 0 22px rgba(60, 145, 245, 0.15);
+}
+
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   SECOND CARD - SUBMITTED COMPLAINTS
+   ========================================================= */
+
+.card + .card {
+    margin-top: 28px;
+}
+
+
+.card + .card h3 {
+    text-align: left;
+
+    font-size: 23px;
+
+    margin-bottom: 22px;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
+
+.card:has(table) {
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+table {
+    width: 100%;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.40);
+
+    border: 1px solid rgba(120, 180, 240, 0.22);
+}
+
+
+/* Table heading */
+
+th {
+    padding: 16px 14px;
+
+    text-align: left;
+
+    background: rgba(65, 135, 225, 0.08);
+
+    color: #31527d;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    border-bottom: 1px solid rgba(100, 160, 225, 0.18);
+
+    white-space: nowrap;
+}
+
+
+/* Table cells */
+
+td {
+    padding: 16px 14px;
+
+    color: #55708f;
+
+    font-size: 13px;
+
+    border-bottom: 1px solid rgba(100, 160, 225, 0.12);
+
+    background: rgba(255, 255, 255, 0.30);
+}
+
+
+/* Remove last border */
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* Row hover */
+
+tbody tr:hover td {
+    background: rgba(100, 170, 240, 0.07);
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+.status-badge {
+    display: inline-block;
+
+    padding: 6px 13px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* Resolved */
+
+.status-Resolved {
+    background: rgba(60, 190, 115, 0.13);
+
+    color: #24915a;
+
+    border: 1px solid rgba(60, 190, 115, 0.20);
+}
+
+
+/* Pending */
+
+.status-Pending {
+    background: rgba(245, 175, 55, 0.14);
+
+    color: #bd7b15;
+
+    border: 1px solid rgba(245, 175, 55, 0.22);
+}
+
+
+/* In Progress */
+
+.status-InProgress {
+    background: rgba(65, 140, 240, 0.13);
+
+    color: #2874c9;
+
+    border: 1px solid rgba(65, 140, 240, 0.20);
+}
+
+
+/* =========================================================
+   PHOTO LINK
+   ========================================================= */
+
+table a {
+    color: #347fdb !important;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+
+table a:hover {
+    color: #155bb0 !important;
+
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   BACKGROUND DECORATION
+   ========================================================= */
+
+body::before {
+    content: "";
+
+    position: fixed;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background: rgba(80, 155, 245, 0.08);
+
+    top: 170px;
+    left: -80px;
+
+    pointer-events: none;
+
+    z-index: -1;
+}
+
+
+body::after {
+    content: "";
+
+    position: fixed;
+
+    width: 260px;
+    height: 260px;
+
+    border-radius: 50%;
+
+    background: rgba(80, 155, 245, 0.07);
+
+    right: -120px;
+    bottom: 50px;
+
+    pointer-events: none;
+
+    z-index: -1;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 750px) {
+
+    .navbar {
+        padding: 0 5%;
+    }
+
+    .card {
+        width: 94%;
+
+        padding: 28px 24px;
+
+        border-radius: 24px;
+    }
+
+    .card h3 {
+        font-size: 24px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+    }
+
+    table {
+        min-width: 700px;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 500px) {
+
+    body {
+        padding-bottom: 30px;
+    }
+
+    .navbar {
+        height: auto;
+
+        min-height: 70px;
+
+        padding: 15px 5%;
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 7px;
+    }
+
+    .brand {
+        font-size: 20px;
+    }
+
+    .navbar > div:last-child {
+        font-size: 12px;
+    }
+
+    .card {
+        width: 94%;
+
+        margin-top: 22px;
+
+        padding: 23px 18px;
+
+        border-radius: 22px;
+    }
+
+    .card h3 {
+        font-size: 21px;
+
+        margin-bottom: 23px;
+    }
+
+    .card + .card h3 {
+        font-size: 20px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        height: 50px;
+    }
+
+    textarea {
+        min-height: 115px;
+    }
+
+    button[type="submit"] {
+        height: 52px;
+
+        font-size: 15px;
+    }
+}
+/* =====================================================
+   GLASS HOVER EFFECT FOR STUDENT PORTAL INPUTS
+   ===================================================== */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 18px;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    transition:
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+/* When cursor is on a box */
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    background: rgba(255, 255, 255, 0.78);
+
+    border-color: rgba(70, 160, 245, 0.45);
+
+    box-shadow:
+        0 0 18px rgba(70, 160, 245, 0.15),
+        0 8px 22px rgba(60, 130, 220, 0.10);
+
+    transform: translateY(-2px);
+}
+
+/* When clicking inside a box */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    background: rgba(255, 255, 255, 0.88);
+
+    border-color: rgba(50, 140, 235, 0.65);
+
+    box-shadow:
+        0 0 0 4px rgba(70, 160, 245, 0.10),
+        0 8px 25px rgba(60, 130, 220, 0.12);
+
+    transform: translateY(-2px);
+}
+/* FIX: Prevent dark/black native dropdown popup */
+html {
+    color-scheme: light;
+}
+
+.form-group select {
+    color-scheme: light;
+    background-color: rgba(255, 255, 255, 0.75);
+    color: #18356b;
+}
+
+.form-group select option {
+    background-color: #ffffff;
+    color: #18356b;
+}
+/* =========================================
+   STUDENT PORTAL TOP LOGOUT BUTTON
+   ========================================= */
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.brand span {
+    margin: 0 10px;
+    color: #9bb4d8;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 22px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #4d9cff, #2878e8);
+    color: white !important;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow:
+        0 6px 18px rgba(50, 130, 235, 0.25);
+    transition: all 0.25s ease;
+}
+
+.logout-btn span {
+    font-size: 18px;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 9px 24px rgba(50, 130, 235, 0.35);
+}
+/* =========================================
+   STUDENT PORTAL TOP NAVIGATION
+   ========================================= */
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.student-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.scholar-id {
+    color: #526b91;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 8px 17px;
+    min-width: 72px;
+
+    border-radius: 22px;
+    background: linear-gradient(135deg, #4d9cff, #2878e8);
+
+    color: #ffffff !important;
+    text-decoration: none !important;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    box-shadow: 0 5px 14px rgba(50, 130, 235, 0.22);
+
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(50, 130, 235, 0.30);
+}
+/* =========================================
+   REGISTER COMPLAINT BUTTON
+   ========================================= */
+
+.register-complaint-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 20px 0 5px 0;
+    padding: 12px 22px;
+
+    border-radius: 25px;
+
+    background: linear-gradient(
+        135deg,
+        #4d9cff,
+        #2878e8
+    );
+
+    color: #ffffff !important;
+    text-decoration: none !important;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    box-shadow:
+        0 7px 20px rgba(50, 130, 235, 0.22);
+
+    transition: all 0.25s ease;
+}
+
+.register-complaint-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(50, 130, 235, 0.32);
+}

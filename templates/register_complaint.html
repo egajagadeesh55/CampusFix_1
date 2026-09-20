@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Register Complaint - CampusFix</title>
+</head>
+
+<body>
+
+    <div class="navbar">
+        <div class="brand">
+            CampusFix <span>|</span> Student Portal
+        </div>
+
+        <div class="student-nav">
+            <span class="scholar-id">
+                Scholar No: {{ session['scholar_number'] }}
+            </span>
+
+            <a href="/student/dashboard" class="logout-btn">
+                Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+
+        <h3>Register a Maintenance Complaint</h3>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input
+                        type="text"
+                        name="student_name"
+                        placeholder="Enter your name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Department / Branch</label>
+
+                    <select name="department" required>
+                        <option value="">Select Branch</option>
+                        <option value="Computer Science">
+                            Computer Science & Engineering
+                        </option>
+                        <option value="Information Technology">
+                            Information Technology
+                        </option>
+                        <option value="Mechanical">
+                            Mechanical Engineering
+                        </option>
+                        <option value="Civil">
+                            Civil Engineering
+                        </option>
+                        <option value="Electrical">
+                            Electrical Engineering
+                        </option>
+                        <option value="Electronics">
+                            Electronics & Communication
+                        </option>
+                        <option value="BCA">BCA</option>
+                        <option value="MCA">MCA</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Building</label>
+
+                    <select name="building" required>
+                        <option value="Block A">Block A</option>
+                        <option value="Block B">Block B</option>
+                        <option value="Block C">Block C</option>
+                        <option value="Block F">Block F</option>
+                        <option value="Administrative Block">Administrative Block</option>
+                        <option value="Library">Library</option>
+                        <option value="Computer Lab">Computer Lab</option>
+                        <option value="Hostel Block">Hostel Block</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Room No.</label>
+                    <input
+                        type="text"
+                        name="room_no"
+                        placeholder="e.g. 204"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Category</label>
+
+                    <select name="category" required>
+                        <option value="Electrical">
+                            Electrical (Fan, Light, Switch, Socket)
+                        </option>
+                        <option value="Furniture">
+                            Furniture (Desk, Chair, Podium, Board)
+                        </option>
+                        <option value="Plumbing">
+                            Plumbing (Tap, Leakage, Washroom, Pipe)
+                        </option>
+                        <option value="IT">
+                            IT Infrastructure (PC, Projector, LAN, Mouse)
+                        </option>
+                        <option value="Internet">
+                            Internet / Wi-Fi Access
+                        </option>
+                        <option value="Cleaning">
+                            Cleaning & Sanitation
+                        </option>
+                        <option value="AC/Cooling">
+                            AC / Water Cooler
+                        </option>
+                        <option value="Other">
+                            Other Campus Facilities
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority</label>
+
+                    <select name="priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
+                <label>Problem Description</label>
+
+                <textarea
+                    name="description"
+                    rows="5"
+                    placeholder="Describe the problem..."
+                    required></textarea>
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
+                <label>Attach Photo Proof (Optional)</label>
+
+                <input
+                    type="file"
+                    name="photo"
+                    accept="image/*">
+            </div>
+
+            <button type="submit">
+                Submit Complaint
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>

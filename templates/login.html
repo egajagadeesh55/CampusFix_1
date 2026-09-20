@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CampusFix - Login</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family: Arial, sans-serif;
+
+            background: #e8e8e8;
+
+            color: #333;
+
+            overflow-x: hidden;
+        }
+
+
+        /* Main area */
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 30px;
+        }
+
+
+        /* Neumorphic circular card */
+
+        .login-circle {
+
+            width: 570px;
+            height: 570px;
+
+            border-radius: 50%;
+
+            background: #e8e8e8;
+
+            box-shadow:
+                20px 20px 45px rgba(163, 163, 163, 0.55),
+                -20px -20px 45px rgba(255, 255, 255, 0.95);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            position: relative;
+
+            transition: all 0.6s ease;
+        }
+
+
+        /* Inner circle */
+
+        .inner-circle {
+
+            width: 490px;
+            min-height: 490px;
+
+            border-radius: 50%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            box-shadow:
+                inset 8px 8px 20px rgba(163, 163, 163, 0.25),
+                inset -8px -8px 20px rgba(255, 255, 255, 0.8);
+
+            padding: 70px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+
+        /* Content */
+
+        .content {
+
+            width: 100%;
+
+            text-align: center;
+
+            animation: fadeIn 0.7s ease;
+        }
+
+
+        @keyframes fadeIn {
+
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+        }
+
+
+        h1 {
+
+            font-size: 42px;
+
+            margin-bottom: 8px;
+
+            font-weight: 700;
+
+            letter-spacing: -1px;
+        }
+
+
+        .subtitle {
+
+            color: #777;
+
+            font-size: 15px;
+
+            margin-bottom: 28px;
+        }
+
+
+        /* Portal buttons */
+
+        .portal-buttons {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .portal-btn {
+
+            flex: 1;
+
+            padding: 12px 8px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: #e8e8e8;
+
+            color: #555;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            box-shadow:
+                5px 5px 10px rgba(163, 163, 163, 0.4),
+                -5px -5px 10px rgba(255, 255, 255, 0.8);
+
+            transition: 0.3s;
+        }
+
+
+        .portal-btn:hover {
+
+            transform: translateY(-3px);
+        }
+
+
+        .portal-btn.active {
+
+            box-shadow:
+                inset 4px 4px 8px rgba(163, 163, 163, 0.35),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+
+            color: #333;
+        }
+
+
+        /* Forms */
+
+        .form {
+
+            width: 100%;
+        }
+
+
+        .input-box {
+
+            position: relative;
+
+            margin-bottom: 18px;
+        }
+
+
+        .input-box span {
+
+            position: absolute;
+
+            left: 17px;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            font-size: 18px;
+
+            color: #777;
+
+            z-index: 2;
+        }
+
+
+        input {
+
+            width: 100%;
+
+            height: 50px;
+
+            border: none;
+
+            outline: none;
+
+            border-radius: 14px;
+
+            background: #e8e8e8;
+
+            padding: 0 18px 0 48px;
+
+            font-size: 14px;
+
+            color: #333;
+
+            box-shadow:
+                inset 5px 5px 10px rgba(163, 163, 163, 0.3),
+                inset -5px -5px 10px rgba(255, 255, 255, 0.8);
+
+            transition: 0.3s;
+        }
+
+
+        input {
+
+    transition:
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.25s ease,
+        color 0.3s ease;
+}
+
+
+/* Mouse cursor enters input */
+
+input:hover {
+
+    background: #f1fbff;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 0 15px rgba(0, 190, 220, 0.25),
+        inset 3px 3px 7px rgba(163, 163, 163, 0.25),
+        inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+}
+
+
+/* User clicks/types inside input */
+
+input:focus {
+
+    background: #e5faff;
+
+    color: #16798a;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 0 20px rgba(0, 200, 230, 0.35),
+        inset 3px 3px 7px rgba(163, 163, 163, 0.25),
+        inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+}
+
+
+        input::placeholder {
+
+            color: #999;
+        }
+
+
+        /* Main button */
+
+        .main-btn {
+
+            width: 100%;
+
+            height: 50px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: #e8e8e8;
+
+            color: #444;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            cursor: pointer;
+
+            margin-top: 8px;
+
+            box-shadow:
+                7px 7px 14px rgba(163, 163, 163, 0.4),
+                -7px -7px 14px rgba(255, 255, 255, 0.9);
+
+            transition: all 0.25s ease;
+        }
+
+
+        .main-btn:hover {
+
+            transform: translateY(-3px);
+        }
+
+
+        .main-btn:active {
+
+            transform: translateY(2px);
+
+            box-shadow:
+                inset 5px 5px 10px rgba(163, 163, 163, 0.35),
+                inset -5px -5px 10px rgba(255, 255, 255, 0.8);
+        }
+
+
+        /* Links */
+
+        .switch-text {
+
+            margin-top: 22px;
+
+            font-size: 14px;
+
+            color: #777;
+        }
+
+
+        .switch-link {
+
+            color: #555;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            text-decoration: underline;
+        }
+
+
+        /* Flash messages */
+
+        .messages {
+
+            margin-bottom: 15px;
+        }
+
+
+        .message {
+
+            padding: 9px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+
+            box-shadow:
+                inset 2px 2px 5px rgba(163, 163, 163, 0.2),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+        }
+
+
+        /* Hide signup initially */
+
+        #signupForm {
+
+            display: none;
+        }
+
+
+        /* Mobile */
+
+        @media (max-width: 650px) {
+
+            .page {
+                padding: 15px;
+            }
+
+            .login-circle {
+
+                width: 95vw;
+
+                height: 95vw;
+
+                max-width: 520px;
+
+                max-height: 520px;
+            }
+
+
+            .inner-circle {
+
+                width: 86vw;
+
+                height: 86vw;
+
+                max-width: 450px;
+
+                max-height: 450px;
+
+                padding: 45px;
+            }
+
+
+            h1 {
+
+                font-size: 32px;
+            }
+
+
+            .subtitle {
+
+                margin-bottom: 18px;
+            }
+
+
+            .portal-btn {
+
+                font-size: 12px;
+
+                padding: 10px 5px;
+            }
+
+
+            input {
+
+                height: 45px;
+            }
+
+
+            .main-btn {
+
+                height: 45px;
+            }
+        }
+
+
+        @media (max-width: 400px) {
+
+            .inner-circle {
+
+                padding: 30px;
+            }
+
+
+            h1 {
+
+                font-size: 28px;
+            }
+
+
+            .input-box {
+
+                margin-bottom: 12px;
+            }
+
+
+            .portal-buttons {
+
+                margin-bottom: 15px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="page">
+
+    <div class="login-circle">
+
+        <div class="inner-circle">
+
+            <div class="content">
+
+
+                <!-- CAMPUSFIX -->
+
+                <h1>CampusFix</h1>
+
+                <p class="subtitle">
+                    Campus Complaint Management System
+                </p>
+
+
+                <!-- PORTAL SELECTION -->
+
+                <div class="portal-buttons">
+
+                    <button
+                        type="button"
+                        class="portal-btn active"
+                        onclick="studentPortal()">
+
+                        🎓 Student Portal
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="portal-btn"
+                        onclick="adminPortal()">
+
+                        👨‍💼 Admin Portal
+
+                    </button>
+
+                </div>
+
+
+                <!-- FLASH MESSAGES -->
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+
+                        <div class="messages">
+
+                            {% for category, message in messages %}
+
+                                <div class="message">
+                                    {{ message }}
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                {% endwith %}
+
+
+
+                <!-- ===================== -->
+                <!-- STUDENT LOGIN -->
+                <!-- ===================== -->
+
+                <div id="loginForm">
+
+                    <form action="/login" method="POST">
+
+                        <div class="input-box">
+
+                            <span>👤</span>
+
+                            <input
+                                type="text"
+                                name="scholar_number"
+                                placeholder="Scholar Number"
+                                required>
+
+                        </div>
+
+
+                        <div class="input-box">
+
+                            <span>🔒</span>
+
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Password"
+                                required>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="main-btn">
+
+                            SIGN IN
+
+                        </button>
+
+                    </form>
+
+
+                    <p class="switch-text">
+
+                        Don't have an account?
+
+                        <span
+                            class="switch-link"
+                            onclick="showSignup()">
+
+                            Sign up
+
+                        </span>
+
+                    </p>
+
+                </div>
+
+
+
+                <!-- ===================== -->
+                <!-- STUDENT SIGN UP -->
+                <!-- ===================== -->
+
+                <div id="signupForm">
+
+                    <form action="/register" method="POST">
+
+                        <div class="input-box">
+
+                            <span>🎓</span>
+
+                            <input
+                                type="text"
+                                name="scholar_number"
+                                placeholder="Scholar Number"
+                                required>
+
+                        </div>
+
+
+                        <div class="input-box">
+
+                            <span>✉️</span>
+
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Gmail Address"
+                                required>
+
+                        </div>
+
+
+                        <div class="input-box">
+
+                            <span>🔒</span>
+
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Password"
+                                required>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="main-btn">
+
+                            CREATE ACCOUNT
+
+                        </button>
+
+                    </form>
+
+
+                    <p class="switch-text">
+
+                        Already have an account?
+
+                        <span
+                            class="switch-link"
+                            onclick="showLogin()">
+
+                            Login
+
+                        </span>
+
+                    </p>
+
+                </div>
+                <!-- ===================== -->
+<!-- ADMIN LOGIN -->
+<!-- ===================== -->
+
+<div id="adminLoginForm" style="display: none;">
+
+    <form action="/admin/login" method="POST">
+
+        <div class="input-box">
+
+            <span>👨‍💼</span>
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Admin Username"
+                required>
+
+        </div>
+
+        <div class="input-box">
+
+            <span>🔒</span>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Admin Password"
+                required>
+
+        </div>
+
+        <button
+            type="submit"
+            class="main-btn">
+
+            ADMIN SIGN IN
+
+        </button>
+
+    </form>
+
+    <p class="switch-text">
+
+        Back to
+
+        <span
+            class="switch-link"
+            onclick="studentPortal()">
+
+            Student Login
+
+        </span>
+
+    </p>
+
+</div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    function showSignup() {
+
+    const circle = document.querySelector(".login-circle");
+
+    const login = document.getElementById("loginForm");
+
+    const signup = document.getElementById("signupForm");
+
+
+    /* Start circle rotation */
+
+    circle.classList.remove("circle-switch");
+
+    void circle.offsetWidth;
+
+    circle.classList.add("circle-switch");
+
+
+    /* Wait for first half of rotation */
+
+    setTimeout(function() {
+
+        login.style.display = "none";
+
+        signup.style.display = "block";
+
+    }, 350);
+
+
+    /* Remove animation class */
+
+    setTimeout(function() {
+
+        circle.classList.remove("circle-switch");
+
+    }, 800);
+
+}
+
+
+    function showLogin() {
+
+    const circle = document.querySelector(".login-circle");
+
+    const login = document.getElementById("loginForm");
+
+    const signup = document.getElementById("signupForm");
+
+
+    /* Start circle rotation */
+
+    circle.classList.remove("circle-switch");
+
+    void circle.offsetWidth;
+
+    circle.classList.add("circle-switch");
+
+
+    /* Change form during rotation */
+
+    setTimeout(function() {
+
+        signup.style.display = "none";
+
+        login.style.display = "block";
+
+    }, 350);
+
+
+    /* Remove animation */
+
+    setTimeout(function() {
+
+        circle.classList.remove("circle-switch");
+
+    }, 800);
+
+}
+
+
+    function studentPortal() {
+
+    const circle = document.querySelector(".login-circle");
+
+    const login = document.getElementById("loginForm");
+    const signup = document.getElementById("signupForm");
+    const admin = document.getElementById("adminLoginForm");
+
+    circle.classList.remove("portal-transition");
+    void circle.offsetWidth;
+    circle.classList.add("portal-transition");
+
+    setTimeout(function() {
+
+        signup.style.display = "none";
+        admin.style.display = "none";
+        login.style.display = "block";
+
+        document.querySelectorAll(".portal-btn")
+            .forEach(btn => btn.classList.remove("active"));
+
+        document.querySelectorAll(".portal-btn")[0]
+            .classList.add("active");
+
+    }, 350);
+
+}
+
+
+function adminPortal() {
+
+    const circle = document.querySelector(".login-circle");
+
+    const login = document.getElementById("loginForm");
+    const signup = document.getElementById("signupForm");
+    const admin = document.getElementById("adminLoginForm");
+
+    circle.classList.remove("portal-transition");
+    void circle.offsetWidth;
+    circle.classList.add("portal-transition");
+
+    setTimeout(function() {
+
+        login.style.display = "none";
+        signup.style.display = "none";
+        admin.style.display = "block";
+
+        document.querySelectorAll(".portal-btn")
+            .forEach(btn => btn.classList.remove("active"));
+
+        document.querySelectorAll(".portal-btn")[1]
+            .classList.add("active");
+
+    }, 350);
+
+}
+
+
+    /* ==========================================
+       3D MOUSE CURSOR ANIMATION
+       ========================================== */
+
+    const circle = document.querySelector(".login-circle");
+
+    if (circle) {
+
+        circle.addEventListener("mousemove", function(e) {
+
+            const rect = circle.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateY = ((x - centerX) / centerX) * 8;
+            const rotateX = ((centerY - y) / centerY) * 8;
+
+            circle.style.transform =
+                `perspective(1000px)
+                 rotateX(${rotateX}deg)
+                 rotateY(${rotateY}deg)
+                 scale(1.02)`;
+
+            circle.style.boxShadow =
+                `${-rotateY * 2}px
+                 ${rotateX * 2}px
+                 45px
+                 rgba(163, 163, 163, 0.55),
+                 ${rotateY * 2}px
+                 ${-rotateX * 2}px
+                 45px
+                 rgba(255, 255, 255, 0.95)`;
+
+        });
+
+
+        circle.addEventListener("mouseleave", function() {
+
+            circle.style.transform =
+                "perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)";
+
+            circle.style.boxShadow =
+                "20px 20px 45px rgba(163, 163, 163, 0.55), -20px -20px 45px rgba(255, 255, 255, 0.95)";
+
+        });
+
+    }
+
+
+    /* ==========================================
+       PORTAL BUTTON HOVER EFFECT
+       ========================================== */
+
+    const portalButtons =
+        document.querySelectorAll(".portal-btn");
+
+
+    portalButtons.forEach(function(button) {
+
+        button.addEventListener("mousemove", function(e) {
+
+            const rect = button.getBoundingClientRect();
+
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const rotateY =
+                ((x - centerX) / centerX) * 6;
+
+            const rotateX =
+                ((centerY - y) / centerY) * 6;
+
+            button.style.transform =
+                `perspective(500px)
+                 rotateX(${rotateX}deg)
+                 rotateY(${rotateY}deg)
+                 translateY(-4px)
+                 scale(1.03)`;
+
+        });
+
+
+        button.addEventListener("mouseleave", function() {
+
+            button.style.transform =
+                "rotateX(0deg) rotateY(0deg) translateY(0) scale(1)";
+
+        });
+
+    });
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard - CampusFix</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #eef7ff, #f8fbff);
+            color: #183b6b;
+        }
+
+        .dashboard-container {
+            width: 94%;
+            max-width: 1400px;
+            margin: 20px auto 40px;
+        }
+
+        /* NAVBAR */
+
+        .dashboard-navbar {
+            height: 65px;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4%;
+            box-shadow: 0 3px 20px rgba(50,120,200,0.10);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #124d9b;
+        }
+
+        .brand-icon {
+            font-size: 30px;
+        }
+
+        .portal-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #3e70a9;
+            border-left: 1px solid #aac7e5;
+            padding-left: 15px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg,#328bea,#1971d1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 6px 15px rgba(40,130,230,0.22);
+        }
+
+        /* WELCOME */
+
+        .welcome-card {
+            margin-bottom: 15px;
+            padding: 22px 25px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.68);
+            border: 1px solid rgba(255,255,255,0.9);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(60,130,210,0.10);
+        }
+
+        .welcome-card h2 {
+            margin: 0 0 5px;
+            color: #124d9b;
+        }
+
+        .welcome-card p {
+            margin: 0;
+            color: #6182a7;
+        }
+
+        /* STAT CARDS */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            min-height: 115px;
+            padding: 20px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.72);
+            border: 1px solid rgba(255,255,255,0.9);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 25px rgba(60,130,210,0.10);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            flex-shrink: 0;
+        }
+
+        .blue {
+            background: #dceeff;
+            color: #2379d8;
+        }
+
+        .green {
+            background: #dff8e9;
+            color: #21ae68;
+        }
+
+        .orange {
+            background: #fff0cf;
+            color: #e89a00;
+        }
+
+        .red {
+            background: #ffe2e5;
+            color: #ed5260;
+        }
+
+        .stat-number {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #315c8e;
+        }
+
+        .stat-subtitle {
+            font-size: 11px;
+            color: #7895b5;
+            margin-top: 3px;
+        }
+
+        /* ANALYTICS */
+
+        .analytics-card {
+            background: rgba(255,255,255,0.70);
+            border-radius: 20px;
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,0.9);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(60,130,210,0.10);
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            font-weight: bold;
+            color: #164f94;
+            margin-bottom: 4px;
+        }
+
+        .section-subtitle {
+            color: #7895b5;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .analytics-box {
+            min-height: 220px;
+            border: 1px solid #d9eafa;
+            border-radius: 15px;
+            padding: 18px;
+            background: rgba(250,253,255,0.65);
+        }
+
+        .analytics-box h3 {
+            margin: 0;
+            color: #1e558e;
+            font-size: 15px;
+        }
+
+        .analytics-box p {
+            font-size: 11px;
+            color: #7996b5;
+        }
+
+        /* CATEGORY */
+
+        .category-row {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            gap: 10px;
+        }
+
+        .category-name {
+            width: 90px;
+            font-size: 12px;
+        }
+
+        .bar {
+            height: 12px;
+            border-radius: 20px;
+            background: #e5f0fa;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg,#398ee8,#72b5f4);
+        }
+
+        /* RESOLUTION */
+
+        .resolution-item {
+            margin: 18px 0;
+        }
+
+        .resolution-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        /* STATUS */
+
+        .status-list {
+            margin-top: 20px;
+        }
+
+        .status-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 5px;
+            border-bottom: 1px solid #e2edf7;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            margin-right: 7px;
+        }
+
+        .dot-green {
+            background: #37c97b;
+        }
+
+        .dot-orange {
+            background: #f2ae24;
+        }
+
+        .dot-red {
+            background: #ef5c68;
+        }
+
+        /* QUICK STATS */
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .quick-box {
+            padding: 15px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.75);
+            border: 1px solid #e0edf8;
+        }
+
+        .quick-box small {
+            display: block;
+            color: #7895b5;
+            margin-bottom: 6px;
+        }
+
+        .quick-box strong {
+            color: #24598f;
+        }
+
+        /* REGISTER BUTTON */
+
+        .register-area {
+            margin-top: 18px;
+            padding: 22px;
+            text-align: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg,#3d98ef,#2477d2);
+            color: white;
+            box-shadow: 0 10px 25px rgba(45,130,220,0.20);
+        }
+
+        .register-area h3 {
+            margin: 0 0 6px;
+        }
+
+        .register-area p {
+            margin: 0 0 15px;
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .register-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: white;
+            color: #2174c8;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        /* COMPLAINT TABLE */
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+
+        .complaints-card,
+        .insights-card {
+            background: rgba(255,255,255,0.72);
+            border-radius: 20px;
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,0.9);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(60,130,210,0.10);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        th {
+            background: #eaf5ff;
+            color: #24598f;
+            padding: 12px 8px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5eef7;
+            color: #4f7298;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-Pending {
+            background: #ffe3e6;
+            color: #df4e5c;
+        }
+
+        .status-InProgress {
+            background: #fff0ca;
+            color: #d89500;
+        }
+
+        .status-Resolved {
+            background: #dff8e9;
+            color: #20a863;
+        }
+
+        .view-link {
+            color: #267ed6;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* INSIGHTS */
+
+        .insight {
+            padding: 14px 0;
+            border-bottom: 1px solid #e2edf7;
+        }
+
+        .insight strong {
+            color: #24598f;
+        }
+
+        .insight small {
+            display: block;
+            color: #7895b5;
+            margin-top: 4px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 1000px) {
+            .stats-grid,
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 650px) {
+            .stats-grid,
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-navbar {
+                padding: 0 15px;
+            }
+
+            .portal-name {
+                display: none;
+            }
+
+            .dashboard-container {
+                width: 96%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="dashboard-navbar">
+
+        <div class="brand">
+            <span class="brand-icon">🎓</span>
+            <span>CampusFix</span>
+            <span class="portal-name">Student Portal</span>
+        </div>
+
+        <div class="nav-right">
+            <span>
+                Scholar No: {{ session['scholar_number'] }}
+            </span>
+
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                ⇥ Logout
+            </a>
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-container">
+
+        <!-- WELCOME -->
+        <div class="welcome-card">
+            <h2>👋 Welcome, Student!</h2>
+            <p>
+                Here's the overview of your maintenance requests and their status.
+            </p>
+        </div>
+
+
+        <!-- STATISTICS -->
+        {% set total = tickets|length %}
+        {% set resolved = tickets|selectattr('status', 'equalto', 'Resolved')|list|length %}
+        {% set pending = tickets|selectattr('status', 'equalto', 'Pending')|list|length %}
+        {% set progress = tickets|selectattr('status', 'equalto', 'In Progress')|list|length %}
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon blue">🔧</div>
+                <div>
+                    <div class="stat-number">{{ total }}</div>
+                    <div class="stat-title">Total Requests</div>
+                    <div class="stat-subtitle">All time</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">✓</div>
+                <div>
+                    <div class="stat-number">{{ resolved }}</div>
+                    <div class="stat-title">Resolved</div>
+                    <div class="stat-subtitle">Completed successfully</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">◷</div>
+                <div>
+                    <div class="stat-number">{{ progress }}</div>
+                    <div class="stat-title">In Progress</div>
+                    <div class="stat-subtitle">Being processed</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon red">!</div>
+                <div>
+                    <div class="stat-number">{{ pending }}</div>
+                    <div class="stat-title">Pending</div>
+                    <div class="stat-subtitle">Waiting for action</div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ANALYTICS -->
+        <div class="analytics-card">
+
+            <div class="section-title">
+                📊 Problem Resolution Analytics
+            </div>
+
+            <div class="section-subtitle">
+                Visual overview of your maintenance requests and their resolution status.
+            </div>
+
+
+            <div class="analytics-grid">
+
+                <!-- CATEGORY -->
+                <div class="analytics-box">
+
+                    <h3>Requests by Category</h3>
+                    <p>Total requests across different categories</p>
+
+                    {% set electrical = tickets|selectattr('category', 'equalto', 'Electrical')|list|length %}
+                    {% set furniture = tickets|selectattr('category', 'equalto', 'Furniture')|list|length %}
+                    {% set plumbing = tickets|selectattr('category', 'equalto', 'Plumbing')|list|length %}
+                    {% set it = tickets|selectattr('category', 'equalto', 'IT')|list|length %}
+                    {% set internet = tickets|selectattr('category', 'equalto', 'Internet')|list|length %}
+                    {% set cleaning = tickets|selectattr('category', 'equalto', 'Cleaning')|list|length %}
+                    {% set cooling = tickets|selectattr('category', 'equalto', 'AC/Cooling')|list|length %}
+
+                    <div class="category-row">
+                        <span class="category-name">Electrical</span>
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (electrical / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                        <b>{{ electrical }}</b>
+                    </div>
+
+                    <div class="category-row">
+                        <span class="category-name">Furniture</span>
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (furniture / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                        <b>{{ furniture }}</b>
+                    </div>
+
+                    <div class="category-row">
+                        <span class="category-name">Plumbing</span>
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (plumbing / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                        <b>{{ plumbing }}</b>
+                    </div>
+
+                    <div class="category-row">
+                        <span class="category-name">IT</span>
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (it / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                        <b>{{ it }}</b>
+                    </div>
+
+                </div>
+
+
+                <!-- RESOLUTION -->
+                <div class="analytics-box">
+
+                    <h3>Resolution Status</h3>
+                    <p>Current status of your requests</p>
+
+                    <div class="resolution-item">
+                        <div class="resolution-label">
+                            <span>Resolved</span>
+                            <b>{{ resolved }}</b>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (resolved / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resolution-item">
+                        <div class="resolution-label">
+                            <span>In Progress</span>
+                            <b>{{ progress }}</b>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (progress / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resolution-item">
+                        <div class="resolution-label">
+                            <span>Pending</span>
+                            <b>{{ pending }}</b>
+                        </div>
+
+                        <div class="bar">
+                            <div class="bar-fill"
+                                 style="width: {{ (pending / total * 100) if total else 0 }}%;">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="analytics-box">
+
+                    <h3>Request Status</h3>
+                    <p>Overview of your current requests</p>
+
+                    <div class="status-list">
+
+                        <div class="status-line">
+                            <span>
+                                <span class="status-dot dot-green"></span>
+                                Resolved
+                            </span>
+                            <b>{{ resolved }}</b>
+                        </div>
+
+                        <div class="status-line">
+                            <span>
+                                <span class="status-dot dot-orange"></span>
+                                In Progress
+                            </span>
+                            <b>{{ progress }}</b>
+                        </div>
+
+                        <div class="status-line">
+                            <span>
+                                <span class="status-dot dot-red"></span>
+                                Pending
+                            </span>
+                            <b>{{ pending }}</b>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK STATS -->
+            <div class="quick-stats">
+
+                <div class="quick-box">
+                    <small>Total Requests</small>
+                    <strong>{{ total }}</strong>
+                </div>
+
+                <div class="quick-box">
+                    <small>Resolved Requests</small>
+                    <strong>{{ resolved }}</strong>
+                </div>
+
+                <div class="quick-box">
+                    <small>In Progress</small>
+                    <strong>{{ progress }}</strong>
+                </div>
+
+                <div class="quick-box">
+                    <small>Pending Requests</small>
+                    <strong>{{ pending }}</strong>
+                </div>
+
+            </div>
+
+
+            <!-- REGISTER COMPLAINT -->
+            <div class="register-area">
+
+                <h3>📨 Register a Maintenance Complaint</h3>
+
+                <p>
+                    Need help? Submit a new maintenance request.
+                </p>
+
+                <a href="{{ url_for('register_complaint_page') }}"
+                   class="register-btn">
+                    Register a Maintenance Complaint →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOTTOM SECTION -->
+        <div class="bottom-grid">
+
+
+            <!-- COMPLAINT TABLE -->
+            <div class="complaints-card">
+
+                <div class="section-title">
+                    📋 My Submitted Complaints
+                </div>
+
+                <div class="section-subtitle">
+                    View the status and details of your maintenance requests.
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Category</th>
+                                <th>Building / Room</th>
+                                <th>Status</th>
+                                <th>Photo</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for t in tickets %}
+
+                            <tr>
+
+                                <td>{{ t.ticket_id }}</td>
+
+                                <td>{{ t.category }}</td>
+
+                                <td>
+                                    {{ t.building }} - Rm {{ t.room_no }}
+                                </td>
+
+                                <td>
+
+                                    <span class="status-badge
+                                    {% if t.status == 'Resolved' %}
+                                        status-Resolved
+                                    {% elif t.status == 'In Progress' %}
+                                        status-InProgress
+                                    {% else %}
+                                        status-Pending
+                                    {% endif %}">
+
+                                        {{ t.status }}
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    {% if t.photo_filename %}
+
+                                    <a class="view-link"
+                                       href="{{ url_for('static', filename='uploads/' + t.photo_filename) }}"
+                                       target="_blank">
+                                        View
+                                    </a>
+
+                                    {% else %}
+
+                                    No Photo
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {{ t.date_created.strftime('%Y-%m-%d') }}
+                                </td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="6" style="text-align:center;">
+                                    No complaints submitted yet.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK INSIGHTS -->
+            <div class="insights-card">
+
+                <div class="section-title">
+                    💡 Quick Insights
+                </div>
+
+                <div class="section-subtitle">
+                    Key information about your requests.
+                </div>
+
+                <div class="insight">
+                    <strong>✓ Resolved Requests</strong>
+                    <small>{{ resolved }} request(s) completed.</small>
+                </div>
+
+                <div class="insight">
+                    <strong>◷ In Progress</strong>
+                    <small>{{ progress }} request(s) being processed.</small>
+                </div>
+
+                <div class="insight">
+                    <strong>! Pending Requests</strong>
+                    <small>{{ pending }} request(s) waiting for action.</small>
+                </div>
+
+                <div class="insight">
+                    <strong>🔧 Total Requests</strong>
+                    <small>{{ total }} maintenance request(s) submitted.</small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

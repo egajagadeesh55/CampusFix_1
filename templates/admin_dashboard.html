@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - CampusFix</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/admin.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="top-navbar">
+
+    <div class="brand-area">
+
+        <div class="campus-icon">🎓</div>
+
+        <div class="brand-text">
+            <span class="brand-name">CampusFix</span>
+            <span class="separator">|</span>
+            <span class="portal-name">Admin Portal</span>
+        </div>
+
+    </div>
+
+    <div class="admin-area">
+
+        <span>
+            Admin: {{ session.get('scholar_number', 'Admin') }}
+        </span>
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+            ↪ Logout
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="dashboard-container">
+
+
+<!-- ================= WELCOME ================= -->
+
+<section class="welcome-card">
+
+    <div class="welcome-icon">
+        🛡️
+    </div>
+
+    <div>
+
+        <h1>Welcome, Administrator!</h1>
+
+        <p>
+            Monitor campus maintenance complaints, track resolution
+            progress and manage requests.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= SUMMARY CARDS ================= -->
+
+<section class="summary-grid">
+
+    <div class="summary-card total-card">
+
+        <div class="summary-icon">
+            📋
+        </div>
+
+        <div>
+
+            <div class="summary-number">
+                {{ tickets|length }}
+            </div>
+
+            <div class="summary-title">
+                Total Complaints
+            </div>
+
+            <div class="summary-subtitle">
+                All student requests
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card resolved-card">
+
+        <div class="summary-icon">
+            ✓
+        </div>
+
+        <div>
+
+            <div class="summary-number">
+                {{ tickets|selectattr('status', 'equalto', 'Resolved')|list|length }}
+            </div>
+
+            <div class="summary-title">
+                Resolved
+            </div>
+
+            <div class="summary-subtitle">
+                Successfully completed
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card progress-card">
+
+        <div class="summary-icon">
+            ◷
+        </div>
+
+        <div>
+
+            <div class="summary-number">
+                {{ tickets|selectattr('status', 'equalto', 'In Progress')|list|length }}
+            </div>
+
+            <div class="summary-title">
+                In Progress
+            </div>
+
+            <div class="summary-subtitle">
+                Being processed
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card pending-card">
+
+        <div class="summary-icon">
+            !
+        </div>
+
+        <div>
+
+            <div class="summary-number">
+                {{ tickets|selectattr('status', 'equalto', 'Pending')|list|length }}
+            </div>
+
+            <div class="summary-title">
+                Pending
+            </div>
+
+            <div class="summary-subtitle">
+                Waiting for action
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= CHART SECTION ================= -->
+
+<section class="charts-grid">
+
+
+    <!-- CATEGORY CHART -->
+
+    <div class="chart-card">
+
+        <div class="chart-heading">
+
+            <div>
+
+                <h2>Complaints by Category</h2>
+
+                <p>
+                    Distribution of maintenance requests by category
+                </p>
+
+            </div>
+
+            <span class="chart-symbol">◉</span>
+
+        </div>
+
+        <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+        </div>
+
+    </div>
+
+
+    <!-- RESOLVED TREND -->
+
+    <div class="chart-card">
+
+        <div class="chart-heading">
+
+            <div>
+
+                <h2>Resolved Complaints Trend</h2>
+
+                <p>
+                    Resolved complaints over the last 7 days
+                </p>
+
+            </div>
+
+            <span class="chart-symbol">↗</span>
+
+        </div>
+
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+
+    </div>
+
+
+    <!-- STATUS CHART -->
+
+    <div class="chart-card">
+
+        <div class="chart-heading">
+
+            <div>
+
+                <h2>Complaints by Status</h2>
+
+                <p>
+                    Current status of all student complaints
+                </p>
+
+            </div>
+
+            <span class="chart-symbol">◉</span>
+
+        </div>
+
+        <div class="chart-container">
+            <canvas id="timeChart"></canvas>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= QUICK STATS ================= -->
+
+<section class="quick-section">
+
+    <div class="section-heading">
+
+        <span class="section-icon">📊</span>
+
+        <div>
+
+            <h2>Quick Stats</h2>
+
+            <p>
+                Key performance indicators
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="quick-grid">
+
+
+        <!-- FASTEST RESOLUTION -->
+
+        <div class="quick-card">
+
+            <div class="quick-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <strong>Resolved Complaints</strong>
+
+                <span>
+                    {{ tickets|selectattr('status', 'equalto', 'Resolved')|list|length }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- MOST COMMON CATEGORY -->
+
+        <div class="quick-card">
+
+            <div class="quick-icon purple">
+                ★
+            </div>
+
+            <div>
+
+                <strong>Most Common Category</strong>
+
+                <span>
+
+                    {% if category_labels and category_values %}
+
+                        {% set max_value = category_values|max %}
+
+                        {% for i in range(category_labels|length) %}
+
+                            {% if category_values[i] == max_value %}
+                                {{ category_labels[i] }}
+                            {% endif %}
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        No complaints
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL CATEGORIES -->
+
+        <div class="quick-card">
+
+            <div class="quick-icon orange">
+                ◷
+            </div>
+
+            <div>
+
+                <strong>Complaint Categories</strong>
+
+                <span>
+                    {{ category_labels|length }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="quick-card">
+
+            <div class="quick-icon red">
+                !
+            </div>
+
+            <div>
+
+                <strong>Pending Requests</strong>
+
+                <span>
+                    {{ tickets|selectattr('status', 'equalto', 'Pending')|list|length }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= COMPLAINT TABLE ================= -->
+
+<section class="complaints-card">
+
+    <div class="section-heading">
+
+        <span class="section-icon">▤</span>
+
+        <div>
+
+            <h2>All Student Complaints</h2>
+
+            <p>
+                Review complaints submitted by students and update their status.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Ticket ID</th>
+                    <th>Scholar No.</th>
+                    <th>Student Name</th>
+                    <th>Department</th>
+                    <th>Category</th>
+                    <th>Building / Room</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Photo</th>
+                    <th>Date</th>
+                    <th>Action</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for t in tickets %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ t.ticket_id }}</strong>
+                    </td>
+
+                    <td>
+                        {{ t.scholar_number }}
+                    </td>
+
+                    <td>
+                        {{ t.student_name }}
+                    </td>
+
+                    <td>
+                        {{ t.department }}
+                    </td>
+
+                    <td>
+                        {{ t.category }}
+                    </td>
+
+                    <td>
+                        {{ t.building }} - Rm {{ t.room_no }}
+                    </td>
+
+                    <td>
+
+                        <span class="priority
+                            priority-{{ t.priority|lower }}">
+
+                            {{ t.priority }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="status
+                            status-{{ t.status|lower|replace(' ', '-') }}">
+
+                            {{ t.status }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {% if t.photo_filename %}
+
+                            <a class="photo-link"
+                               href="{{ url_for(
+                               'static',
+                               filename='uploads/' + t.photo_filename
+                               ) }}"
+                               target="_blank">
+
+                                View
+
+                            </a>
+
+                        {% else %}
+
+                            <span class="no-photo">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ t.date_created.strftime('%Y-%m-%d') }}
+                    </td>
+
+                    <td>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                            'update_status',
+                            ticket_id=t.id
+                            ) }}"
+                            class="status-form">
+
+                            <select name="status"
+                                    onchange="this.form.submit()">
+
+                                <option value="Pending"
+                                    {% if t.status == 'Pending' %}
+                                    selected
+                                    {% endif %}>
+                                    Pending
+                                </option>
+
+                                <option value="In Progress"
+                                    {% if t.status == 'In Progress' %}
+                                    selected
+                                    {% endif %}>
+                                    In Progress
+                                </option>
+
+                                <option value="Resolved"
+                                    {% if t.status == 'Resolved' %}
+                                    selected
+                                    {% endif %}>
+                                    Resolved
+                                </option>
+
+                            </select>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="11" class="empty-row">
+                        No complaints submitted yet.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ================= QUICK INSIGHTS ================= -->
+
+<section class="insights-card">
+
+    <div class="section-heading">
+
+        <span class="section-icon">
+            💡
+        </span>
+
+        <div>
+
+            <h2>Quick Insights</h2>
+
+            <p>
+                Important information at a glance
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="insight-list">
+
+
+        <div class="insight-item">
+
+            <span class="insight-dot green-dot"></span>
+
+            <div>
+
+                <strong>Resolved Requests</strong>
+
+                <p>
+                    {{ tickets|selectattr('status', 'equalto', 'Resolved')|list|length }}
+                    complaint(s) completed.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-item">
+
+            <span class="insight-dot orange-dot"></span>
+
+            <div>
+
+                <strong>In Progress</strong>
+
+                <p>
+                    {{ tickets|selectattr('status', 'equalto', 'In Progress')|list|length }}
+                    request(s) being processed.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-item">
+
+            <span class="insight-dot red-dot"></span>
+
+            <div>
+
+                <strong>Pending Requests</strong>
+
+                <p>
+                    {{ tickets|selectattr('status', 'equalto', 'Pending')|list|length }}
+                    request(s) waiting for action.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="insight-item">
+
+            <span class="insight-dot blue-dot"></span>
+
+            <div>
+
+                <strong>Most Active Category</strong>
+
+                <p>
+
+                    {% if category_labels and category_values %}
+
+                        {% set max_value = category_values|max %}
+
+                        {% for i in range(category_labels|length) %}
+
+                            {% if category_values[i] == max_value %}
+                                {{ category_labels[i] }}
+                            {% endif %}
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        No complaints yet.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<!-- ================= CHART JAVASCRIPT ================= -->
+
+<script>
+
+/* =========================================================
+   CATEGORY DATA
+   ========================================================= */
+
+const categoryLabels =
+    {{ category_labels | tojson }};
+
+const categoryValues =
+    {{ category_values | tojson }};
+
+
+/* =========================================================
+   TICKET DATA
+   We create simple JavaScript arrays from the tickets.
+   This avoids asking Flask for undefined variables.
+   ========================================================= */
+
+const ticketDates = [
+
+    {% for t in tickets %}
+
+        "{{ t.date_created.strftime('%Y-%m-%d') }}"
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+const ticketStatuses = [
+
+    {% for t in tickets %}
+
+        "{{ t.status }}"
+
+        {% if not loop.last %},{% endif %}
+
+    {% endfor %}
+
+];
+
+
+/* =========================================================
+   CATEGORY DOUGHNUT
+   ========================================================= */
+
+new Chart(
+    document.getElementById('categoryChart'),
+    {
+
+        type: 'doughnut',
+
+        data: {
+
+            labels: categoryLabels,
+
+            datasets: [{
+
+                data: categoryValues,
+
+                backgroundColor: [
+                    '#4285F4',
+                    '#45C98A',
+                    '#FFB526',
+                    '#9B59E8',
+                    '#EF5B70',
+                    '#28B9D4',
+                    '#FF7A59',
+                    '#607D8B'
+                ],
+
+                borderWidth: 3,
+
+                borderColor: '#ffffff'
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            cutout: '55%',
+
+            plugins: {
+
+                legend: {
+
+                    position: 'right',
+
+                    labels: {
+
+                        usePointStyle: true,
+
+                        padding: 18,
+
+                        font: {
+                            size: 12
+                        }
+
+                    }
+
+                },
+
+                tooltip: {
+
+                    enabled: true,
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            const total =
+                                context.dataset.data.reduce(
+                                    (a, b) => a + b,
+                                    0
+                                );
+
+                            const value =
+                                context.raw;
+
+                            const percentage =
+                                total > 0
+                                ? ((value / total) * 100).toFixed(1)
+                                : 0;
+
+                            return `${context.label}: ${value} (${percentage}%)`;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   RESOLVED COMPLAINTS - LAST 7 DAYS
+   ========================================================= */
+
+const trendLabels = [];
+
+const trendValues = [];
+
+const today = new Date();
+
+today.setHours(0, 0, 0, 0);
+
+
+for (let i = 6; i >= 0; i--) {
+
+    const date = new Date(today);
+
+    date.setDate(today.getDate() - i);
+
+    const year = date.getFullYear();
+
+    const month =
+        String(date.getMonth() + 1).padStart(2, '0');
+
+    const day =
+        String(date.getDate()).padStart(2, '0');
+
+    const dateString =
+        `${year}-${month}-${day}`;
+
+    const displayDate =
+        date.toLocaleDateString(
+            'en-US',
+            {
+                month: 'short',
+                day: 'numeric'
+            }
+        );
+
+    trendLabels.push(displayDate);
+
+    let resolvedCount = 0;
+
+
+    for (let j = 0; j < ticketDates.length; j++) {
+
+        if (
+            ticketDates[j] === dateString &&
+            ticketStatuses[j] === 'Resolved'
+        ) {
+
+            resolvedCount++;
+
+        }
+
+    }
+
+    trendValues.push(resolvedCount);
+
+}
+
+
+/* =========================================================
+   TREND LINE
+   ========================================================= */
+
+new Chart(
+    document.getElementById('trendChart'),
+    {
+
+        type: 'line',
+
+        data: {
+
+            labels: trendLabels,
+
+            datasets: [{
+
+                label: 'Resolved Complaints',
+
+                data: trendValues,
+
+                borderColor: '#4285F4',
+
+                backgroundColor:
+                    'rgba(66,133,244,0.12)',
+
+                borderWidth: 3,
+
+                fill: true,
+
+                tension: 0.4,
+
+                pointRadius: 5,
+
+                pointHoverRadius: 8,
+
+                pointBackgroundColor: '#4285F4'
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+
+                intersect: false,
+
+                mode: 'index'
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        precision: 0
+
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                tooltip: {
+
+                    enabled: true,
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            return `Resolved: ${context.raw}`;
+
+                        }
+
+                    }
+
+                },
+
+                legend: {
+
+                    display: false
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   STATUS CHART
+   ========================================================= */
+
+let pendingCount = 0;
+
+let progressCount = 0;
+
+let resolvedCount = 0;
+
+
+for (let i = 0; i < ticketStatuses.length; i++) {
+
+    if (ticketStatuses[i] === 'Pending') {
+
+        pendingCount++;
+
+    }
+
+    else if (ticketStatuses[i] === 'In Progress') {
+
+        progressCount++;
+
+    }
+
+    else if (ticketStatuses[i] === 'Resolved') {
+
+        resolvedCount++;
+
+    }
+
+}
+
+
+const statusLabels = [
+    'Pending',
+    'In Progress',
+    'Resolved'
+];
+
+
+const statusValues = [
+    pendingCount,
+    progressCount,
+    resolvedCount
+];
+
+
+new Chart(
+    document.getElementById('timeChart'),
+    {
+
+        type: 'bar',
+
+        data: {
+
+            labels: statusLabels,
+
+            datasets: [{
+
+                label: 'Complaints',
+
+                data: statusValues,
+
+                backgroundColor: [
+                    '#FFB526',
+                    '#4285F4',
+                    '#45C98A'
+                ],
+
+                borderRadius: 8,
+
+                borderSkipped: false
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        precision: 0
+
+                    }
+
+                }
+
+            },
+
+            plugins: {
+
+                legend: {
+
+                    display: false
+
+                },
+
+                tooltip: {
+
+                    enabled: true,
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            return `Complaints: ${context.raw}`;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
