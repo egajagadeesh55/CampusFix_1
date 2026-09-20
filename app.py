@@ -1,15 +1,11 @@
 import os
 import datetime
-import socket
+import requests
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-
-# Prevent SMTP from hanging the entire server
-socket.setdefaulttimeout(3.0)
 
 app = Flask(__name__)
 
@@ -19,7 +15,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'campusfix-super-secret-key-production')
 
-# Use absolute path for SQLite on Linux servers
+# Absolute database path for Render Linux container
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'campus.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -28,36 +24,57 @@ UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Limit upload file size to 8MB to prevent worker timeouts
+# Limit file upload size to 8MB
 app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
 # --------------------------------------------------
-# GMAIL SMTP CONFIGURATION
+# BREVO HTTP API EMAIL CONFIGURATION
 # --------------------------------------------------
 
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'egajagadish@gmail.com')
-raw_password = os.environ.get('MAIL_PASSWORD', 'foka kfvz ciqo vktz')
-app.config['MAIL_PASSWORD'] = raw_password.replace(' ', '')
-app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'egajagadish@gmail.com')
+SENDER_NAME = 'CampusFix Support'
 
 db = SQLAlchemy(app)
-mail = Mail(app)
-
 serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
-# --- Home Route ---
-@app.route('/')
-def home():
-    return render_template('welcome.html')
+def send_verification_email(recipient_email, confirm_url):
+    """Sends verification email via Brevo REST API over HTTPS port 443."""
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    payload = {
+        "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
+        "to": [{"email": recipient_email}],
+        "subject": "CampusFix - Verify Your Email Address",
+        "htmlContent": f"""
+        <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; background-color: #f8fafc; border-radius: 8px;">
+            <h2 style="color: #0f172a; margin-top: 0;">Welcome to CampusFix</h2>
+            <p>Thank you for registering. Please confirm your email address to activate your account:</p>
+            <p style="margin: 28px 0;">
+                <a href="{confirm_url}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    Verify Email Address
+                </a>
+            </p>
+            <p style="font-size: 14px; color: #64748b;">Or copy and paste this link into your browser:</p>
+            <p style="font-size: 13px; color: #2563eb; word-break: break-all;"><a href="{confirm_url}">{confirm_url}</a></p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+            <p style="font-size: 12px; color: #94a3b8;">If you did not request this account, you can safely ignore this email.</p>
+        </div>
+        """
+    }
+    response = requests.post(url, json=payload, headers=headers, timeout=12)
+    return response.status_code in [200, 201, 202]
 
 
-# --- Database Models ---
+# --------------------------------------------------
+# DATABASE MODELS
+# --------------------------------------------------
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     scholar_number = db.Column(db.String(50), unique=True, nullable=False)
@@ -84,8 +101,13 @@ class Complaint(db.Model):
 
 
 # --------------------------------------------------
-# REGISTER
+# GENERAL & AUTHENTICATION ROUTES
 # --------------------------------------------------
+
+@app.route('/')
+def home():
+    return render_template('welcome.html')
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -95,7 +117,7 @@ def register():
         password = request.form.get('password', '')
 
         if not scholar_num or not email or not password:
-            flash('Please fill in all fields.', 'danger')
+            flash('Please fill in all required fields.', 'danger')
             return redirect(url_for('register'))
 
         if User.query.filter_by(scholar_number=scholar_num).first():
@@ -108,55 +130,34 @@ def register():
 
         hashed_pwd = generate_password_hash(password)
 
-        user = User(
+        # Unverified user creation
+        new_user = User(
             scholar_number=scholar_num,
             email=email,
             password_hash=hashed_pwd,
             is_verified=False
         )
-        db.session.add(user)
+        db.session.add(new_user)
         db.session.commit()
 
-        email_sent = False
+        # Build secure verification URL
+        token = serializer.dumps(email, salt='email-confirm')
+        confirm_url = url_for('confirm_email', token=token, _external=True)
+
         try:
-            token = serializer.dumps(email, salt='email-confirm')
-            confirm_url = url_for('confirm_email', token=token, _external=True)
-
-            msg = Message(
-                subject='CampusFix - Verify Your Email',
-                sender=app.config['MAIL_DEFAULT_SENDER'],
-                recipients=[email]
-            )
-            msg.body = f"""Hello,
-
-Thank you for registering for CampusFix.
-
-Please click the link below to verify your email address:
-{confirm_url}
-
-Regards,
-CampusFix
-"""
-            mail.send(msg)
-            email_sent = True
+            email_sent = send_verification_email(email, confirm_url)
+            if email_sent:
+                flash('Verification link sent to your Gmail! Please verify to log in.', 'info')
+            else:
+                flash('Registered, but email delivery failed. Verify your Brevo API key configuration.', 'warning')
         except Exception as e:
-            print("Render cloud blocked SMTP:", e)
-            user.is_verified = True
-            db.session.commit()
-
-        if email_sent:
-            flash('Verification link sent to your Gmail. Please check your inbox.', 'info')
-        else:
-            flash('Registration successful! You can now log in directly.', 'success')
+            print("Email dispatch error:", e)
+            flash('Registered, but error sending confirmation email. Please check configuration.', 'warning')
 
         return redirect(url_for('login'))
 
     return render_template('login.html', action='register')
 
-
-# --------------------------------------------------
-# EMAIL VERIFICATION
-# --------------------------------------------------
 
 @app.route('/confirm/<token>')
 def confirm_email(token):
@@ -181,10 +182,6 @@ def confirm_email(token):
     return redirect(url_for('login'))
 
 
-# --------------------------------------------------
-# LOGIN
-# --------------------------------------------------
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -195,7 +192,7 @@ def login():
 
         if user and check_password_hash(user.password_hash, password):
             if not user.is_verified:
-                flash('Please verify your email via Gmail first.', 'warning')
+                flash('Please verify your email via Gmail before logging in.', 'warning')
                 return redirect(url_for('login'))
 
             session['user_id'] = user.id
@@ -211,10 +208,6 @@ def login():
 
     return render_template('login.html', action='login')
 
-
-# --------------------------------------------------
-# ADMIN LOGIN
-# --------------------------------------------------
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -235,8 +228,14 @@ def admin_login():
     return render_template('login.html')
 
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+
 # --------------------------------------------------
-# STUDENT DASHBOARD
+# STUDENT DASHBOARD & COMPLAINTS
 # --------------------------------------------------
 
 @app.route('/student/dashboard')
@@ -249,7 +248,7 @@ def student_dashboard():
             scholar_number=session['scholar_number']
         ).order_by(Complaint.date_created.desc()).all()
     except Exception as e:
-        print("Database query error:", e)
+        print("Database retrieval error:", e)
         my_tickets = []
 
     total_requests = len(my_tickets)
@@ -267,10 +266,6 @@ def student_dashboard():
     )
 
 
-# --------------------------------------------------
-# REGISTER MAINTENANCE COMPLAINT
-# --------------------------------------------------
-
 @app.route('/student/register-complaint', methods=['GET', 'POST'], endpoint='register_complaint')
 @app.route('/student/register-complaint-page', methods=['GET', 'POST'], endpoint='register_complaint_page')
 @app.route('/student/register', methods=['GET', 'POST'])
@@ -285,13 +280,12 @@ def register_complaint():
                 file = request.files['photo']
                 if file and file.filename:
                     clean_name = secure_filename(file.filename)
-                    if clean_name != '':
+                    if clean_name:
                         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
                         filename = f"{timestamp}_{clean_name}"
-                        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                        file.save(save_path)
+                        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         except Exception as file_err:
-            print("Photo upload failed/skipped:", file_err)
+            print("Photo save bypassed:", file_err)
             filename = None
 
         try:
@@ -325,7 +319,7 @@ def register_complaint():
 
 
 # --------------------------------------------------
-# ADMIN DASHBOARD
+# ADMIN DASHBOARD & CONTROLS
 # --------------------------------------------------
 
 @app.route('/admin/dashboard')
@@ -390,10 +384,6 @@ def admin_dashboard():
     )
 
 
-# --------------------------------------------------
-# UPDATE COMPLAINT STATUS
-# --------------------------------------------------
-
 @app.route('/admin/update_status/<int:ticket_id>', methods=['POST'])
 def update_status(ticket_id):
     if 'user_id' not in session or session.get('role') != 'admin':
@@ -408,22 +398,12 @@ def update_status(ticket_id):
 
 
 # --------------------------------------------------
-# LOGOUT
-# --------------------------------------------------
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-
-# --------------------------------------------------
-# PRODUCTION DB INITIALIZATION & RUN
+# PRODUCTION DB INITIALIZATION & PERMANENT ADMIN SEED
 # --------------------------------------------------
 
 with app.app_context():
     db.create_all()
-    # Ensure your dedicated admin account always exists in production
+    # Permanent Dedicated Admin account initialization
     admin_user = User.query.filter_by(scholar_number='Egajagadeesh').first()
     if not admin_user:
         admin_user = User(
@@ -435,9 +415,7 @@ with app.app_context():
         )
         db.session.add(admin_user)
         db.session.commit()
-        print("Dedicated Admin user verified & created: Egajagadeesh")
     else:
-        # Guarantee role and password stay up to date
         admin_user.role = 'admin'
         admin_user.is_verified = True
         admin_user.password_hash = generate_password_hash('Jagadeesh@123')
