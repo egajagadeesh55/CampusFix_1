@@ -280,36 +280,45 @@ def register_complaint():
 
     if request.method == 'POST':
         filename = None
-        if 'photo' in request.files:
-            file = request.files['photo']
-            if file and file.filename != '':
-                clean_name = secure_filename(file.filename)
-                # Prefix timestamp to ensure unique filename
-                timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-                filename = f"{timestamp}_{clean_name}"
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
+        try:
+            if 'photo' in request.files:
+                file = request.files['photo']
+                if file and file.filename:
+                    clean_name = secure_filename(file.filename)
+                    if clean_name != '':
+                        timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+                        filename = f"{timestamp}_{clean_name}"
+                        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(save_path)
+        except Exception as file_err:
+            print("Photo upload failed/skipped:", file_err)
+            filename = None
 
-        count = Complaint.query.count() + 1
-        ticket_id = f"CMP{count:03d}"
+        try:
+            count = db.session.query(Complaint.id).count() + 1
+            ticket_id = f"CMP{count:03d}"
 
-        new_complaint = Complaint(
-            ticket_id=ticket_id,
-            scholar_number=session['scholar_number'],
-            student_name=request.form.get('student_name', session.get('scholar_number', 'Student')),
-            department=request.form.get('department', 'General'),
-            building=request.form.get('building', 'Main Block'),
-            room_no=request.form.get('room_no', 'N/A'),
-            category=request.form.get('category', 'Other'),
-            priority=request.form.get('priority', 'Medium'),
-            description=request.form.get('description', ''),
-            photo_filename=filename
-        )
+            new_complaint = Complaint(
+                ticket_id=ticket_id,
+                scholar_number=session.get('scholar_number', 'Unknown'),
+                student_name=request.form.get('student_name', session.get('scholar_number', 'Student')),
+                department=request.form.get('department', 'General'),
+                building=request.form.get('building', 'Main Block'),
+                room_no=request.form.get('room_no', 'N/A'),
+                category=request.form.get('category', 'General'),
+                priority=request.form.get('priority', 'Medium'),
+                description=request.form.get('description', 'No description provided'),
+                photo_filename=filename
+            )
 
-        db.session.add(new_complaint)
-        db.session.commit()
+            db.session.add(new_complaint)
+            db.session.commit()
+            flash(f'Complaint Registered Successfully! Ticket ID: {ticket_id}', 'success')
+        except Exception as db_err:
+            db.session.rollback()
+            print("Database save error:", db_err)
+            flash('Error saving complaint. Please try again.', 'danger')
 
-        flash(f'Complaint Registered Successfully! Ticket ID: {ticket_id}', 'success')
         return redirect(url_for('student_dashboard'))
 
     return render_template('register_complaint.html')
