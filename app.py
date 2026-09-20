@@ -25,17 +25,21 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --------------------------------------------------
-# GMAIL SMTP CONFIGURATION
+# GMAIL SMTP CONFIGURATION (SSL Port 465)
 # --------------------------------------------------
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 
 # Read from environment variables if present on the server, otherwise fallback
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'egajagadish@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'foka kfvz ciqo vktz')
+
+# Strip spaces from the App Password automatically
+raw_password = os.environ.get('MAIL_PASSWORD', 'foka kfvz ciqo vktz')
+app.config['MAIL_PASSWORD'] = raw_password.replace(' ', '')
+
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 db = SQLAlchemy(app)
