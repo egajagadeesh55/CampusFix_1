@@ -423,6 +423,25 @@ def logout():
 
 with app.app_context():
     db.create_all()
+    # Ensure your dedicated admin account always exists in production
+    admin_user = User.query.filter_by(scholar_number='Egajagadeesh').first()
+    if not admin_user:
+        admin_user = User(
+            scholar_number='Egajagadeesh',
+            email='egajagadish@gmail.com',
+            password_hash=generate_password_hash('Jagadeesh@123'),
+            role='admin',
+            is_verified=True
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("Dedicated Admin user verified & created: Egajagadeesh")
+    else:
+        # Guarantee role and password stay up to date
+        admin_user.role = 'admin'
+        admin_user.is_verified = True
+        admin_user.password_hash = generate_password_hash('Jagadeesh@123')
+        db.session.commit()
 
 if __name__ == '__main__':
     app.run(debug=True)
