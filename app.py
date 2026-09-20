@@ -17,8 +17,11 @@ app = Flask(__name__)
 # BASIC CONFIGURATION
 # --------------------------------------------------
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change_this_to_a_random_secret_key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///campus.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'campusfix-super-secret-key-production')
+
+# Use absolute path for SQLite on Linux servers
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'campus.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
@@ -102,7 +105,6 @@ def register():
 
         hashed_pwd = generate_password_hash(password)
 
-        # Create user account
         user = User(
             scholar_number=scholar_num,
             email=email,
@@ -112,7 +114,6 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        # Try sending the verification email
         email_sent = False
         try:
             token = serializer.dumps(email, salt='email-confirm')
@@ -136,7 +137,7 @@ CampusFix
             mail.send(msg)
             email_sent = True
         except Exception as e:
-            # Cloud firewall blocked outbound SMTP: auto-verify so the student is not blocked
+            # Cloud network blocked outbound SMTP; mark verified so user can log in
             print("Render cloud blocked SMTP:", e)
             user.is_verified = True
             db.session.commit()
@@ -144,7 +145,7 @@ CampusFix
         if email_sent:
             flash('Verification link sent to your Gmail. Please check your inbox.', 'info')
         else:
-            flash('Registration successful! You can now log in.', 'success')
+            flash('Registration successful! You can now log in directly.', 'success')
 
         return redirect(url_for('login'))
 
@@ -216,8 +217,8 @@ def login():
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
-        scholar_num = request.form['username']
-        password = request.form['password']
+        scholar_num = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
 
         user = User.query.filter_by(scholar_number=scholar_num, role='admin').first()
 
@@ -241,9 +242,13 @@ def student_dashboard():
     if 'user_id' not in session or session.get('role') != 'student':
         return redirect(url_for('login'))
 
-    my_tickets = Complaint.query.filter_by(
-        scholar_number=session['scholar_number']
-    ).order_by(Complaint.date_created.desc()).all()
+    try:
+        my_tickets = Complaint.query.filter_by(
+            scholar_number=session['scholar_number']
+        ).order_by(Complaint.date_created.desc()).all()
+    except Exception as e:
+        print("Database query error:", e)
+        my_tickets = []
 
     total_requests = len(my_tickets)
     resolved_count = sum(1 for t in my_tickets if t.status == 'Resolved')
@@ -284,13 +289,13 @@ def register_complaint():
         new_complaint = Complaint(
             ticket_id=ticket_id,
             scholar_number=session['scholar_number'],
-            student_name=request.form['student_name'],
-            department=request.form['department'],
-            building=request.form['building'],
-            room_no=request.form['room_no'],
-            category=request.form['category'],
-            priority=request.form['priority'],
-            description=request.form['description'],
+            student_name=request.form.get('student_name', ''),
+            department=request.form.get('department', ''),
+            building=request.form.get('building', ''),
+            room_no=request.form.get('room_no', ''),
+            category=request.form.get('category', ''),
+            priority=request.form.get('priority', 'Medium'),
+            description=request.form.get('description', ''),
             photo_filename=filename
         )
 
@@ -326,11 +331,7 @@ def admin_dashboard():
 
     category_labels = list(category_counts.keys())
     category_values = list(category_counts.values())
-
-    if category_counts:
-        common_category = max(category_counts, key=category_counts.get)
-    else:
-        common_category = 'No complaints yet'
+    common_category = max(category_counts, key=category_counts.get) if category_counts else 'No complaints yet'
 
     today = datetime.datetime.now().date()
     trend_labels = []
@@ -353,9 +354,6 @@ def admin_dashboard():
 
     time_colors = ['#4285F4', '#45C98A', '#FFB526', '#9B59E8', '#EF5B70', '#28B9D4']
 
-    fastest_resolution = 'Not available'
-    average_resolution = 'Not available'
-
     return render_template(
         'admin_dashboard.html',
         tickets=all_tickets,
@@ -370,9 +368,9 @@ def admin_dashboard():
         time_labels=time_labels,
         time_values=time_values,
         time_colors=time_colors,
-        fastest_resolution=fastest_resolution,
+        fastest_resolution='Not available',
         common_category=common_category,
-        average_resolution=average_resolution
+        average_resolution='Not available'
     )
 
 
@@ -386,7 +384,7 @@ def update_status(ticket_id):
         return redirect(url_for('login'))
 
     ticket = Complaint.query.get_or_404(ticket_id)
-    ticket.status = request.form['status']
+    ticket.status = request.form.get('status', 'Pending')
     db.session.commit()
 
     flash(f'Status updated for {ticket.ticket_id}', 'info')
