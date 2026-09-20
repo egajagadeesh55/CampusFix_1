@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 # Prevent SMTP from hanging the entire server
-socket.setdefaulttimeout(5.0)
+socket.setdefaulttimeout(3.0)
 
 app = Flask(__name__)
 
@@ -27,6 +27,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Limit upload file size to 8MB to prevent worker timeouts
+app.config['MAX_CONTENT_LENGTH'] = 8 * 1024 * 1024
 
 # --------------------------------------------------
 # GMAIL SMTP CONFIGURATION
@@ -276,12 +279,16 @@ def register_complaint():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        file = request.files.get('photo')
         filename = None
-
-        if file and file.filename != '':
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if 'photo' in request.files:
+            file = request.files['photo']
+            if file and file.filename != '':
+                clean_name = secure_filename(file.filename)
+                # Prefix timestamp to ensure unique filename
+                timestamp = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+                filename = f"{timestamp}_{clean_name}"
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
 
         count = Complaint.query.count() + 1
         ticket_id = f"CMP{count:03d}"
@@ -289,11 +296,11 @@ def register_complaint():
         new_complaint = Complaint(
             ticket_id=ticket_id,
             scholar_number=session['scholar_number'],
-            student_name=request.form.get('student_name', ''),
-            department=request.form.get('department', ''),
-            building=request.form.get('building', ''),
-            room_no=request.form.get('room_no', ''),
-            category=request.form.get('category', ''),
+            student_name=request.form.get('student_name', session.get('scholar_number', 'Student')),
+            department=request.form.get('department', 'General'),
+            building=request.form.get('building', 'Main Block'),
+            room_no=request.form.get('room_no', 'N/A'),
+            category=request.form.get('category', 'Other'),
             priority=request.form.get('priority', 'Medium'),
             description=request.form.get('description', ''),
             photo_filename=filename
