@@ -137,7 +137,6 @@ CampusFix
             mail.send(msg)
             email_sent = True
         except Exception as e:
-            # Cloud network blocked outbound SMTP; mark verified so user can log in
             print("Render cloud blocked SMTP:", e)
             user.is_verified = True
             db.session.commit()
@@ -269,7 +268,8 @@ def student_dashboard():
 # REGISTER MAINTENANCE COMPLAINT
 # --------------------------------------------------
 
-@app.route('/student/register-complaint', methods=['GET', 'POST'])
+@app.route('/student/register-complaint', methods=['GET', 'POST'], endpoint='register_complaint')
+@app.route('/student/register-complaint-page', methods=['GET', 'POST'], endpoint='register_complaint_page')
 @app.route('/student/register', methods=['GET', 'POST'])
 def register_complaint():
     if 'user_id' not in session or session.get('role') != 'student':
