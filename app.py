@@ -15,9 +15,16 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'campusfix-super-secret-key-production')
 
-# Absolute database path for Render Linux container
+# Read DATABASE_URL from Render
+database_url = os.environ.get('DATABASE_URL')
+
+# Fix URL prefix for SQLAlchemy
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+# Use PostgreSQL if found on Render; otherwise use local SQLite on your PC
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'campus.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or ('sqlite:///' + os.path.join(basedir, 'campus.db'))
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
